@@ -86,8 +86,8 @@ olympic_df%>%
 #  group_by(medal) %>% 
 #  count(medal)
 
-olympic_df$medal <- olympic_df$medal[is.na(olympic_df$medal)]="Not win"
-table(olympic_df$medal)
+#olympic_df$medal <- olympic_df$medal[is.na(olympic_df$medal)]="Not win"
+#table(olympic_df$medal)
 
 #modify type of data
 #olympic_df$medal <- as.factor(olympic_df$medal)
