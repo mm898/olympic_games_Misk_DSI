@@ -71,7 +71,6 @@ USA_won_medals %>%
   group_by(medal) %>%
   count(year) -> USA_won_medals
 
-
 table(USA_won_medals$year)
 
 ggplot(data = USA_won_medals,
@@ -83,7 +82,6 @@ ggplot(data = USA_won_medals,
 # France has 12758 participants
 # France won 666 bronze; 501 gold; 610 silver = 1777
 FRA_won_medals <- data.frame(olympic_df[olympic_df$noc == 'FRA' & olympic_df$medal != 'Not win',])
-
 
 summary(FRA_won_medals$medal)
 table(FRA_won_medals$year)
