@@ -13,7 +13,7 @@ library(GGally)
 library(dplyr)
 
 #import dataset
-olympic<- read.csv("athlete_events.csv")
+olympic<- read.csv("data/athlete_events.csv")
 
 #take a look of our data
 glimpse(olympic)

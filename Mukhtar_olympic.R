@@ -74,7 +74,9 @@ USA_won_medals %>%
 table(USA_won_medals$year)
 
 ggplot(data = USA_won_medals,
-       mapping = aes(x=year, y=n, color=medal)) + ggtitle("Medals won over the years for USA") +
+       mapping = aes(x=year, y=n, color=medal)) + 
+  scale_color_manual(values = c("#8B3E2F",'#CD9B1D','#8B8386')) +
+  ggtitle("Medals won over the years for USA") +
   geom_line() + facet_grid(rows = vars(medal))
 
 
@@ -93,8 +95,11 @@ FRA_won_medals %>%
 
 
 ggplot(data = FRA_won_medals,
-       mapping = aes(x=year, y=n, color=medal)) + ggtitle("Medals won over the years for France") +
-  geom_line() + facet_grid(rows = vars(medal))
+       mapping = aes(x=year, y=n, color=medal)) + 
+  scale_color_manual(values = c("#8B3E2F",'#CD9B1D','#8B8386')) + 
+  ggtitle("Medals won over the years for France") +
+  geom_line() + facet_grid(rows = vars(medal)) 
+  
 
 
 # Great Brittin has 12256 participants
@@ -109,6 +114,12 @@ GBR_won_medals %>%
   select(medal, year) %>%
   group_by(medal) %>%
   count(year) -> GBR_won_medals
+
+ggplot(data = GBR_won_medals,
+       mapping = aes(x=year, y=n, color=medal)) + 
+  scale_color_manual(values = c("#8B3E2F",'#CD9B1D','#8B8386')) + 
+  ggtitle("Medals won over the years for Great Brittin") +
+  geom_line() + facet_grid(rows = vars(medal)) 
 
 
 
