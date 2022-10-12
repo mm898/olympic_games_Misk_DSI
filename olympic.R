@@ -33,6 +33,12 @@ olympic_df$event <- as.factor(olympic_df$event)
 olympic_df$team <- as.factor(olympic_df$team)
 olympic_df$noc <- as.factor(olympic_df$noc)
 
+#rename team column with country
+olympic_df%>%
+  select(team) %>%
+  rename("country"= "team")
+
+
 summary(olympic_df)
 glimpse(olympic_df)
 str(olympic_df)
@@ -53,5 +59,48 @@ table(olympic_df$medal)
 
 #modify type of data
 olympic_df$medal <- as.factor(olympic_df$medal)
+
 #take a look
 summary(olympic_df)
+
+------------
+#How many male and females?
+olympic_df%>%
+  group_by(sex)%>%
+  summarise(count= length(unique(id))) ->gender_count
+
+gender_count %>%
+  ggplot(aes(x=sex,y= count,fill=sex)) +
+  ggtitle("Number of Male and Femal") +
+  geom_col()
+  
+
+
+#How many medal have been won by male and female?
+medal_counts <-olympic_df%>%
+  filter(medal!= "Not win") %>% 
+  group_by(sex) %>% 
+  summarize(Count= length(medal), .groups='drop')
+
+olympic_df%>%
+  group_by(sex, medal)%>%
+  count(medal)
+
+medal_counts <- olympic_df %>% 
+  filter(medal!= "Not win") %>%
+  group_by(sex,medal) %>% 
+  summarize(Count = length(medal), .groups = 'drop') %>% 
+  ggplot(aes(x = sex, y = Count , fill = medal)) + 
+  ggtitle("Number of male and female win in medals")+
+  geom_col(position="dodge") 
+
+medal_counts
+
+
+
+
+
+
+
+  
+
