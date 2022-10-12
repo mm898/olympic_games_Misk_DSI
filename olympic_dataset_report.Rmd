@@ -19,6 +19,7 @@ library(ggplot2)
 library(reactable)
 library(GGally)
 library(dplyr)
+library(magrittr)
 ```
 
 # Step1 (Data exploring and EDA):
@@ -124,20 +125,20 @@ count_year_season %>%
 ### Q3: What is the total number of medals won by each country?
 ```{r}
 country_medal_count <- olympic_df %>%
-  filter(medal !='Not win')%>%
+  filter(medal !='Not win') %>%
   group_by(noc,medal) %>% 
   summarise(Total = n())
 
-country_medal_count 
+country_medal_count %>% 
+  arrange(-Total , n =50) %>% 
+  head(30L) -> top_medal
 
-country_medal_count %>%
-  ggplot(country_medal_count,mapping = aes(x=noc, y=Total, fill=medal)) +
-  scale_fill_manual(values = c("#8B3E2F",'#CD9B1D','#8B8386')) +
+top_medal %>%
+  ggplot(mapping = aes(x=fct_reorder(noc,Total), y=Total, fill=medal)) +
+  scale_fill_manual(values =c("#8B3E2F",'#CD9B1D','#8B8386'))+
   geom_col() +
-  ggtitle("Total number of Medal won by each country") 
+  ggtitle("Total number of Medal won by top country") 
 
-by_country <- olympic_df %>%filter(medal !='Not win')%>% group_by(team) %>% summarise(Total = n())
-by_country
 ```
 
 ### Q4: Who are the top 3 countries that have the most number of participants over the years and how do we compare them over the years?
@@ -234,7 +235,7 @@ gender_count
 
 gender_count %>%
   ggplot(aes(x=sex,y= count,fill=sex)) +
-  ggtitle("Number of Male and Female participants over the years") +
+  ggtitle("Number of Male and Female participants ") +
   geom_col()
 ```
 
