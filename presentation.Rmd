@@ -1,14 +1,18 @@
 ---
-title: "Olympic Dataset Report"
-output: html_document
+title: "presentation"
+output:
+  ioslides_presentation: default
+  beamer_presentation: default
+  slidy_presentation: default
 date: "2022-10-12"
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 ```
 
-# Attaching the required libraries <br>
+# Attaching the required libraries 
+
 ```{r echo=FALSE}
 library(tidyverse)
 library(skimr)
@@ -22,12 +26,15 @@ library(dplyr)
 ```
 
 # Step1 (Data exploring and EDA):
+
 ## We will start by importing the dataset
+
 ```{r}
 olympic <- read.csv("data/athlete_events.csv")
 ```
 
 # We started by exploring our dataset
+
 ```{r}
 #take a look of our data
 glimpse(olympic)
@@ -37,21 +44,23 @@ str(olympic)
 ```
 
 # Then generated an EDA report using DataExplorer
+
 ```{r eval = FALSE}
 create_report(olympic, 
               output_file = "olympics_EDA_report.html", 
               output_dir = "EDA_reports/")
 ```
 
-
 # Step2 (Data cleaning):
 
 ### We figured out that we need to do column name cleaning using janitor package
+
 ```{r}
 olympic_df <- clean_names(olympic)
 ```
 
 ## Then, modified the data type to be factor
+
 ```{r}
 olympic_df$sex <- as.factor(olympic_df$sex)
 olympic_df$season <- as.factor(olympic_df$season)
@@ -61,7 +70,6 @@ olympic_df$event <- as.factor(olympic_df$event)
 olympic_df$country <- as.factor(olympic_df$team)
 olympic_df$noc <- as.factor(olympic_df$noc)
 ```
-
 
 ## Our dataset has missing values in the medal column. Thus, we decided to deal with them
 
@@ -84,6 +92,7 @@ olympic_df$medal <- as.factor(olympic_df$medal)
 # Step 3 (find answers to our questions):
 
 ### Q1: What is the total number of sporting events (for winter and summer)?
+
 ```{r}
 #Total number of sporting events (for winter and summer)
 
@@ -93,7 +102,6 @@ unique(olympic_df$sport)
 #Number of Unique Sports
 length(unique(olympic_df$sport))
 ```
-
 
 ### Q2: What is the total number of sporting events (for winter and summer)?
 
@@ -122,6 +130,7 @@ count_year_season %>%
 ```
 
 ### Q3: What is the total number of medals won by each country?
+
 ```{r}
 country_medal_count <- olympic_df %>%
   filter(medal !='Not win')%>%
@@ -147,6 +156,7 @@ head(sort(table(olympic_df$noc), TRUE),5)
 ```
 
 #### United States:
+
 ```{r}
 # USA has 18853 participants
 # USA won 1358 bronze; 2638 gold; 1641 silver = 5637
@@ -167,6 +177,7 @@ ggplot(data = USA_won_medals,
 ```
 
 #### France
+
 ```{r}
 # France has 12758 participants
 # France won 666 bronze; 501 gold; 610 silver = 1777
@@ -187,6 +198,7 @@ ggplot(data = FRA_won_medals,
 ```
 
 #### United Kingdom:
+
 ```{r}
 # Great Brittin has 12256 participants
 # Great Brittin won 651 bronze; 678 gold; 739 silver = 2068
@@ -206,8 +218,6 @@ ggplot(data = GBR_won_medals,
   geom_line() + facet_grid(rows = vars(medal)) 
 ```
 
-
-
 ### Q5: What is the percentage of the distribution of male and female athletes throughout the years of Olympic history?
 
 ```{r}
@@ -222,8 +232,8 @@ ggplot(Gender_Dist, aes(x=year, y=total_Frequency_count ,color=sex)) +
   geom_point() 
 ```
 
-
 ### Q6: How many male and females participated in the Olympics?
+
 ```{r}
 #How many male and females?
 olympic_df%>%
@@ -239,7 +249,9 @@ gender_count %>%
 ```
 
 ### Q7: Can we comparing men and women winners over the years for summer and winter?
+
 #### Summer:
+
 ```{r}
 olympic_df %>% 
   filter(medal != "Not win", season == "Summer") %>% 
@@ -255,6 +267,7 @@ ggplot(FVSM ,aes(x = year, y = contestants ,color = sex))+
 ```
 
 #### Winter:
+
 ```{r}
 olympic_df %>% 
   filter(medal != "Not win", season == "Winter") %>% 
@@ -269,8 +282,8 @@ ggplot(FVSMWinter ,aes(x = year, y = contestants ,color = sex))+
   facet_wrap(FVSMWinter$medal)
 ```
 
-
 ### Q8: How many medal have been won by male and female?
+
 ```{r}
 #How many medal have been won by male and female?
 medal_counts <-olympic_df%>%
@@ -312,8 +325,8 @@ ggplot(fvsminage ,aes(x =age ,y = contestants))+
   facet_wrap(fvsminage$sex)
 ```
 
-
 ### Q10: Is there a relation between athletes' gender and their winning to their olympic game?
+
 ```{r}
 olympic_df %>% 
   filter(medal != "Not win") %>%
@@ -363,9 +376,10 @@ topMinevent %>%
   scale_fill_manual(values = c("#8B3E2F",'#CD9B1D','#C1CDC1'))
 ```
 
-
 # Step 4 (Hypothesis testing questions):
+
 ### Women growth since they joined the olympics
+
 ```{r}
 #women grouth
 olympic_df %>% 
@@ -383,6 +397,7 @@ ggplot(Fgrouth ,aes(x = year, y = contestants))+
 ```
 
 ### Men growth vs. women growth
+
 ```{r}
 #MEN GROUTH VS WOMENS
 olympic_df %>%
@@ -399,6 +414,4 @@ ggplot(FVSMinyears ,aes(x = year, y = contestants ,color = sex ))+
   facet_grid(FVSMinyears$season)
 ```
 
-
 # Step 5 (Summary):
-

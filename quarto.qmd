@@ -1,15 +1,33 @@
 ---
-title: "Olympic Dataset Report"
-output: html_document
-date: "2022-10-12"
+title: "Olympic Dataset Presentation"
+format: 
+  revealjs:
+    slide-number: true
+    theme: [solarized]
+editor: visual
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+## Presented by: {auto-animate="true"}
 
-# Attaching the required libraries <br>
-```{r echo=FALSE}
+::: {.fragment .fade-up}
+-   Mukhtar Alhejji
+:::
+
+::: {.fragment .fade-up}
+-   Noura Bin Salamah
+:::
+
+::: {.fragment .fade-up}
+-   Abdulrahman Almegren
+:::
+
+::: {.fragment .fade-up}
+-   Razan Sendi
+:::
+
+## Attach required libraries
+
+```{r echo=TRUE}
 library(tidyverse)
 library(skimr)
 library(janitor)
@@ -21,38 +39,68 @@ library(GGally)
 library(dplyr)
 ```
 
-# Step1 (Data exploring and EDA):
-## We will start by importing the dataset
-```{r}
+# Step1 (Data exploring and EDA)
+
+## Reading the dataset
+
+```{r echo=TRUE}
 olympic <- read.csv("data/athlete_events.csv")
 ```
 
-# We started by exploring our dataset
+## Exploring the dataset
+
+::: panel-tabset
+### Head
 ```{r}
-#take a look of our data
+head(olympic, 8)
+```
+
+### Glimpse
+```{r}
 glimpse(olympic)
-skim(olympic)
+```
+
+
+### Summary
+```{r}
 summary(olympic)
+```
+
+### Str
+```{r}
 str(olympic)
 ```
 
-# Then generated an EDA report using DataExplorer
+:::
+```{r}
+#take a look of our data
+#glimpse(olympic)
+#skim(olympic)
+#summary(olympic)
+#str(olympic)
+```
+
+## Generating EDA report with DataExplorer
+
 ```{r eval = FALSE}
 create_report(olympic, 
               output_file = "olympics_EDA_report.html", 
               output_dir = "EDA_reports/")
 ```
 
+# Step2 (Data cleaning)
 
-# Step2 (Data cleaning):
+## Column names cleaning with janitor
 
-### We figured out that we need to do column name cleaning using janitor package
-```{r}
+```{r echo=TRUE}
 olympic_df <- clean_names(olympic)
 ```
 
-## Then, modified the data type to be factor
-```{r}
+
+
+### Modified data type to be factor
+
+```{r echo=TRUE}
 olympic_df$sex <- as.factor(olympic_df$sex)
 olympic_df$season <- as.factor(olympic_df$season)
 olympic_df$city <- as.factor(olympic_df$city)
@@ -62,8 +110,7 @@ olympic_df$country <- as.factor(olympic_df$team)
 olympic_df$noc <- as.factor(olympic_df$noc)
 ```
 
-
-## Our dataset has missing values in the medal column. Thus, we decided to deal with them
+## Missing values
 
 ```{r}
 sum(is.na(olympic_df)) 
@@ -81,23 +128,23 @@ table(olympic_df$medal)
 olympic_df$medal <- as.factor(olympic_df$medal)
 ```
 
-# Step 3 (find answers to our questions):
+# Step 3 (find answers to our questions)
 
-### Q1: What is the total number of sporting events (for winter and summer)?
-```{r}
-#Total number of sporting events (for winter and summer)
+------------------------------------------------------------------------
 
-#Unique Olympic sports
-unique(olympic_df$sport)
+## Q1: What is the total number of sporting events (for winter and summer)?
 
+```{r echo=TRUE}
 #Number of Unique Sports
 length(unique(olympic_df$sport))
+
+#Unique Olympic sports
+head(unique(olympic_df$sport), 25)
 ```
 
+## Q2: What is the total number of athletes and sporting events (for winter and summer)?
 
-### Q2: What is the total number of sporting events (for winter and summer)?
-
-```{r}
+```{r echo=FALSE}
 #Table that shows the total number of athletes and events each year
 count_year_season <- olympic_df %>%
   group_by(year, season) %>%
@@ -105,15 +152,18 @@ count_year_season <- olympic_df %>%
     Athletes = length(unique(id)),
     Events = length(unique(event))
   )
-count_year_season 
-
-
+#count_year_season 
+```
+```{r}
 #Line plot that shows the number of sporting events over time
 count_year_season %>% 
   ggplot(count_year_season, mapping = aes(x=year, y=Events,color=season)) + 
-  ggtitle("Number of sporting events over time") +
+  ggtitle("Number of events over time") +
   geom_line() 
+```
 
+## Q2: What is the total number of athletes and sporting events (for winter and summer)?
+```{r}
 #Line plot that shows the number of athleets events over time
 count_year_season %>% 
   ggplot(count_year_season, mapping = aes(x=year, y=Athletes,color=season)) + 
@@ -121,32 +171,41 @@ count_year_season %>%
   geom_line() 
 ```
 
-### Q3: What is the total number of medals won by each country?
+
+## Q3: What is the total number of medals won by each country?
+
 ```{r}
 country_medal_count <- olympic_df %>%
   filter(medal !='Not win')%>%
   group_by(noc,medal) %>% 
   summarise(Total = n())
 
-country_medal_count 
+#country_medal_count 
+```
 
+```{r}
 country_medal_count %>%
   ggplot(country_medal_count,mapping = aes(x=noc, y=Total, fill=medal)) +
   scale_fill_manual(values = c("#8B3E2F",'#CD9B1D','#8B8386')) +
   geom_col() +
   ggtitle("Total number of Medal won by each country") 
-
+```
+```{r echo=FALSE}
 by_country <- olympic_df %>%filter(medal !='Not win')%>% group_by(team) %>% summarise(Total = n())
-by_country
+#by_country
 ```
 
-### Q4: Who are the top 3 countries that have the most number of participants over the years and how do we compare them over the years?
+## Q4: What are the top 3 countries that have the most number of participants over the years and how do we compare them over the years?
 
-```{r}
+```{r echo=TRUE}
 head(sort(table(olympic_df$noc), TRUE),5)
 ```
 
-#### United States:
+## Top 3 countries performance:
+
+::: panel-tabset
+### United States
+
 ```{r}
 # USA has 18853 participants
 # USA won 1358 bronze; 2638 gold; 1641 silver = 5637
@@ -166,7 +225,8 @@ ggplot(data = USA_won_medals,
   geom_line() + facet_grid(rows = vars(medal))
 ```
 
-#### France
+### France
+
 ```{r}
 # France has 12758 participants
 # France won 666 bronze; 501 gold; 610 silver = 1777
@@ -186,7 +246,8 @@ ggplot(data = FRA_won_medals,
   geom_line() + facet_grid(rows = vars(medal)) 
 ```
 
-#### United Kingdom:
+### United Kingdom
+
 ```{r}
 # Great Brittin has 12256 participants
 # Great Brittin won 651 bronze; 678 gold; 739 silver = 2068
@@ -206,9 +267,10 @@ ggplot(data = GBR_won_medals,
   geom_line() + facet_grid(rows = vars(medal)) 
 ```
 
+:::
 
 
-### Q5: What is the percentage of the distribution of male and female athletes throughout the years of Olympic history?
+## Q5: What is the percentage of male vs. female athletes throughout the years of Olympic history?
 
 ```{r}
 #Percentage of the distribution of male and female athletes throughout the years of Olympic history
@@ -222,8 +284,8 @@ ggplot(Gender_Dist, aes(x=year, y=total_Frequency_count ,color=sex)) +
   geom_point() 
 ```
 
+## Q6: How many male and females participated in the Olympics?
 
-### Q6: How many male and females participated in the Olympics?
 ```{r}
 #How many male and females?
 olympic_df%>%
@@ -238,8 +300,12 @@ gender_count %>%
   geom_col()
 ```
 
-### Q7: Can we comparing men and women winners over the years for summer and winter?
-#### Summer:
+## Q7: Can we compare men and women winners over the years for summer and winter?
+
+## Q7: Can we compare men and women winners ...
+::: panel-tabset
+### Summer
+
 ```{r}
 olympic_df %>% 
   filter(medal != "Not win", season == "Summer") %>% 
@@ -254,7 +320,8 @@ ggplot(FVSM ,aes(x = year, y = contestants ,color = sex))+
   facet_wrap(FVSM$medal)
 ```
 
-#### Winter:
+### Winter:
+
 ```{r}
 olympic_df %>% 
   filter(medal != "Not win", season == "Winter") %>% 
@@ -268,9 +335,10 @@ ggplot(FVSMWinter ,aes(x = year, y = contestants ,color = sex))+
   theme(plot.title = element_text(hjust = 0.5))+
   facet_wrap(FVSMWinter$medal)
 ```
+:::
 
+## Q8: How many medal have been won by male vs. female?
 
-### Q8: How many medal have been won by male and female?
 ```{r}
 #How many medal have been won by male and female?
 medal_counts <-olympic_df%>%
@@ -278,9 +346,9 @@ medal_counts <-olympic_df%>%
   group_by(sex) %>% 
   summarize(Count= length(medal), .groups='drop')
 
-olympic_df%>%
-  group_by(sex, medal)%>%
-  count(medal)
+#olympic_df%>%
+#  group_by(sex, medal)%>%
+#  count(medal)
 
 medal_counts <- olympic_df %>% 
   filter(medal!= "Not win") %>%
@@ -294,7 +362,7 @@ medal_counts <- olympic_df %>%
 medal_counts
 ```
 
-### Q9: What is the most productive age for both male and female athletes in all sorts of sports?
+## Q9: What is the most productive age for both male and female athletes in all sorts of sports?
 
 ```{r}
 olympic_df %>%
@@ -312,8 +380,8 @@ ggplot(fvsminage ,aes(x =age ,y = contestants))+
   facet_wrap(fvsminage$sex)
 ```
 
+## Q10: Is there a relation between athletes' gender and their winning to their olympic game?
 
-### Q10: Is there a relation between athletes' gender and their winning to their olympic game?
 ```{r}
 olympic_df %>% 
   filter(medal != "Not win") %>%
@@ -345,6 +413,13 @@ Minevent %>%
   head(30L) -> topMinevent
 
 
+```
+
+## Q10: Is there a relation between athletes' ...
+::: panel-tabset
+
+### Women
+```{r}
 topFinevent %>% 
   ggplot(aes(x =contestants,y=fct_reorder(event,contestants) , fill = medal))+
   geom_col()+
@@ -354,6 +429,11 @@ topFinevent %>%
   scale_fill_manual(values = c("#8B3E2F",'#CD9B1D','#C1CDC1'))
 
 
+
+```
+
+### Men
+```{r}
 topMinevent %>% 
   ggplot(aes(x =contestants,y=fct_reorder(event,contestants) , fill = medal))+
   geom_col()+
@@ -363,9 +443,13 @@ topMinevent %>%
   scale_fill_manual(values = c("#8B3E2F",'#CD9B1D','#C1CDC1'))
 ```
 
+:::
 
-# Step 4 (Hypothesis testing questions):
-### Women growth since they joined the olympics
+
+# Step 4 (Hypothesis testing questions)
+
+## Women growth since they joined the olympics
+
 ```{r}
 #women grouth
 olympic_df %>% 
@@ -382,7 +466,8 @@ ggplot(Fgrouth ,aes(x = year, y = contestants))+
   facet_grid(Fgrouth$season)
 ```
 
-### Men growth vs. women growth
+## Men growth vs. women growth
+
 ```{r}
 #MEN GROUTH VS WOMENS
 olympic_df %>%
@@ -399,6 +484,14 @@ ggplot(FVSMinyears ,aes(x = year, y = contestants ,color = sex ))+
   facet_grid(FVSMinyears$season)
 ```
 
+# Step 5 (Summary)
 
-# Step 5 (Summary):
+## Summary
+::: {.fragment .fade-left}
+Replace with Summary Text
+:::
 
+## Questions
+::: {.fragment .fade-left}
+Thank you for listening, do you have any questions?
+:::
