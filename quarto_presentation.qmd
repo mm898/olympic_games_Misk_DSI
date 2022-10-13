@@ -409,7 +409,7 @@ fvsminevent %>%
 
 olympic_df %>% 
   filter(medal != "Not win", sex == 'F') %>%
-  group_by(sex , event , medal) %>%
+  group_by(sex , sport , medal) %>%
   summarise(contestants = length(unique(id))) -> Finevent
 
 Finevent %>% 
@@ -418,7 +418,7 @@ Finevent %>%
 
 olympic_df %>% 
   filter(medal != "Not win", sex == 'M') %>%
-  group_by(sex , event , medal) %>%
+  group_by(sex , sport , medal) %>%
   summarise(contestants = length(unique(id))) -> Minevent
 
 Minevent %>% 
@@ -435,14 +435,12 @@ Minevent %>%
 
 ```{r}
 topFinevent %>% 
-  ggplot(aes(x =contestants,y=fct_reorder(event,contestants) , fill = medal))+
+  ggplot(aes(x =contestants,y=fct_reorder(sport,contestants) , fill = medal))+
   geom_col()+
   ggtitle("The most winning events for womens") +
   ylab('Event name')+
   theme(plot.title = element_text(hjust = 0.5))+
   scale_fill_manual(values = c("#8B3E2F",'#CD9B1D','#C1CDC1'))
-
-
 
 ```
 
@@ -450,7 +448,7 @@ topFinevent %>%
 
 ```{r}
 topMinevent %>% 
-  ggplot(aes(x =contestants,y=fct_reorder(event,contestants) , fill = medal))+
+  ggplot(aes(x =contestants,y=fct_reorder(sport,contestants) , fill = medal))+
   geom_col()+
   ggtitle("The most winning events for men") +
   ylab('Event name')+
