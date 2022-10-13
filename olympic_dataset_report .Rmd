@@ -1,0 +1,419 @@
+---
+title: "Olympic Dataset Report"
+output: html_document
+date: "2022-10-12"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Attaching the required libraries
+```{r echo=FALSE}
+library(tidyverse)
+library(skimr)
+library(janitor)
+library(tidyr)
+library(DataExplorer)
+library(ggplot2)
+library(reactable)
+library(GGally)
+library(dplyr)
+library(magrittr)
+```
+
+# Step1 (Data exploring and EDA):
+## We will start by importing the dataset
+```{r}
+olympic <- read.csv("data/athlete_events.csv")
+region<-read.csv("data/noc_regions.csv")
+```
+
+# We started by exploring our dataset
+```{r}
+#take a look of our data
+glimpse(olympic)
+skim(olympic)
+summary(olympic)
+str(olympic)
+```
+
+# Then generated an EDA report using DataExplorer
+```{r eval = FALSE}
+create_report(olympic, 
+              output_file = "olympics_EDA_report.html", 
+              output_dir = "EDA_reports/")
+```
+
+
+# Step2 (Data cleaning):
+
+### We figured out that we need to do column name cleaning using janitor package
+```{r}
+olympic_df <- clean_names(olympic)
+region_df<- clean_names(region)
+```
+
+
+### We will merge the two dataset
+```{r}
+olympic_game <- merge(olympic_df,region_df,by="noc")
+
+summary(olympic_game)
+
+```
+
+
+## Then, modified the data type to be factor
+```{r}
+olympic_game$sex <- as.factor(olympic_game$sex)
+olympic_game$season <- as.factor(olympic_game$season)
+olympic_game$city <- as.factor(olympic_game$city)
+olympic_game$sport <- as.factor(olympic_game$sport)
+olympic_game$event <- as.factor(olympic_game$event)
+olympic_game$country <- as.factor(olympic_game$team)
+olympic_game$noc <- as.factor(olympic_game$noc)
+```
+
+
+## Our dataset has missing values in the medal column. Thus, we decided to deal with them
+
+```{r}
+sum(is.na(olympic_game)) 
+
+# remove NULL value in medal 
+# the NULL mean not winning any medals
+olympic_game %>% 
+  group_by(olympic_game$medal) %>% 
+  count(olympic_game$medal)
+
+olympic_game$medal[is.na(olympic_game$medal)] = "Not win"
+table(olympic_game$medal)
+
+#modify type of data
+olympic_game$medal <- as.factor(olympic_game$medal)
+```
+
+# Step 3 (find answers to our questions):
+
+### Q1: What is the total number of sporting events (for winter and summer)?
+```{r}
+#Total number of sporting events (for winter and summer)
+
+#Unique Olympic sports
+unique(olympic_game$sport)
+
+#Number of Unique Sports
+length(unique(olympic_game$sport))
+```
+
+
+### Q2: What is the total number of sporting events (for winter and summer)?
+
+```{r}
+#Table that shows the total number of athletes and events each year
+count_year_season <- olympic_game %>%
+  group_by(year, season) %>%
+  summarize(
+    Athletes = length(unique(id)),
+    Events = length(unique(event))
+  )
+count_year_season 
+
+
+#Line plot that shows the number of sporting events over time
+count_year_season %>% 
+  ggplot(count_year_season, mapping = aes(x=year, y=Events,color=season)) + 
+  ggtitle("Number of sporting events over time") +
+  geom_line() 
+
+#Line plot that shows the number of athleets events over time
+count_year_season %>% 
+  ggplot(count_year_season, mapping = aes(x=year, y=Athletes,color=season)) + 
+  ggtitle("Number of athleets over time") +
+  geom_line() 
+```
+
+### Q3: What is the total number of medals win by each country?
+
+```{r}
+country_medal_count <- olympic_game %>%
+  filter(medal !='Not win') %>%
+  group_by(region,medal) %>% 
+  summarise(Total = n())
+
+country_medal_count %>% 
+  arrange(-Total , n =50) %>% 
+  head(30L) -> top_medal
+
+top_medal %>%
+  ggplot(mapping = aes(x=fct_reorder(region,Total), y=Total, fill=medal)) +
+  scale_fill_manual(values =c("#8B3E2F",'#CD9B1D','#8B8386'))+
+  geom_col() +
+  ggtitle("Total number of Medal win by top country") 
+```
+
+
+### Q4: Who are the top 3 countries that have the most number of participants over the years and how do we compare them over the years?
+
+```{r}
+head(sort(table(olympic_game$region), TRUE),5)
+```
+
+#### United States:
+```{r}
+# USA has 18853 participants
+# USA won 1358 bronze; 2638 gold; 1641 silver = 5637
+USA_won_medals <- data.frame(olympic_game[olympic_game$region == 'USA' & olympic_game$medal != 'Not win',])
+
+USA_won_medals %>%
+  select(medal, year) %>%
+  group_by(medal) %>%
+  count(year) -> USA_won_medals
+
+#table(USA_won_medals$year)
+
+ggplot(data = USA_won_medals,
+       mapping = aes(x=year, y=n, color=medal)) + 
+  scale_color_manual(values = c("#8B3E2F",'#CD9B1D','#8B8386')) +
+  ggtitle("Medals won over the years for USA") +
+  geom_line() + facet_grid(rows = vars(medal))
+```
+
+#### France
+```{r}
+# France has 12758 participants
+# France won 666 bronze; 501 gold; 610 silver = 1777
+FRA_won_medals <- data.frame(olympic_game[olympic_game$region == 'France' & olympic_game$medal != 'Not win',])
+
+#table(FRA_won_medals$year)
+
+FRA_won_medals %>%
+  select(medal, year) %>%
+  group_by(medal) %>%
+  count(year) -> FRA_won_medals
+
+ggplot(data = FRA_won_medals,
+       mapping = aes(x=year, y=n, color=medal)) + 
+  scale_color_manual(values = c("#8B3E2F",'#CD9B1D','#8B8386')) + 
+  ggtitle("Medals won over the years for France") +
+  geom_line() + facet_grid(rows = vars(medal)) 
+```
+
+#### Germany:
+```{r}
+# Great Germany has 15883 participants
+# Great Germany won 651 bronze; 678 gold; 739 silver = 2068
+GBR_won_medals <- data.frame(olympic_game[olympic_game$region == 'Germany' & olympic_game$medal != 'Not win',])
+
+#table(GBR_won_medals$year)
+
+GBR_won_medals %>%
+  select(medal, year) %>%
+  group_by(medal) %>%
+  count(year) -> GBR_won_medals
+
+ggplot(data = GBR_won_medals,
+       mapping = aes(x=year, y=n, color=medal)) + 
+  scale_color_manual(values = c("#8B3E2F",'#CD9B1D','#8B8386')) + 
+  ggtitle("Medals won over the years for  Germany") +
+  geom_line() + facet_grid(rows = vars(medal)) 
+```
+
+
+### Q5: How many male and females participated in the olympics?
+```{r}
+#How many male and females?
+olympic_game%>%
+  group_by(sex)%>%
+  summarise(count= length(unique(id))) -> gender_count
+
+gender_count
+
+gender_count %>%
+  ggplot(aes(x=sex,y= count,fill=sex)) +
+  ggtitle("Number of Male and Female participants ") +
+  geom_col()
+```
+
+
+### Q6: What is the percentage of the distribution of male and female athletes throughout the years of Olympic history?
+
+```{r}
+#Percentage of the distribution of male and female athletes throughout the years of Olympic history
+
+Gender_Dist <- olympic_game %>%
+  group_by(year, sex) %>%
+  summarise(total_count=n()) %>% 
+  mutate(total_Frequency_count = (total_count / sum(total_count) )*100)
+
+ggplot(Gender_Dist, aes(x=year, y=total_Frequency_count ,color=sex)) + 
+  ylab("Share in olympic game")+
+  geom_point() 
+```
+
+
+### Q7: Can we comparing men and women winners over the years for summer and winter?
+#### Summer:
+```{r}
+olympic_game %>% 
+  filter(medal != "Not win", season == "Summer") %>% 
+  group_by(year , sex , medal, season) %>%
+  summarise(contestants = length(unique(id))) -> FVSM
+
+ggplot(FVSM ,aes(x = year, y = contestants ,color = sex))+
+  geom_point()+
+  geom_line( )+
+  ggtitle("Summer Men and Womens winners over the years") +
+  theme(plot.title = element_text(hjust = 0.5))+
+  facet_wrap(FVSM$medal)
+```
+
+#### Winter:
+```{r}
+olympic_game %>% 
+  filter(medal != "Not win", season == "Winter") %>% 
+  group_by(year , sex , medal, season) %>%
+  summarise(contestants = length(unique(id))) -> FVSMWinter
+
+ggplot(FVSMWinter ,aes(x = year, y = contestants ,color = sex))+
+  geom_point()+
+  geom_line( )+
+  ggtitle("Winter Men and Womens winners over the years") +
+  theme(plot.title = element_text(hjust = 0.5))+
+  facet_wrap(FVSMWinter$medal)
+```
+
+
+### Q8: How many medal have been won by male and female?
+```{r}
+#How many medal have been won by male and female?
+medal_counts <-olympic_game%>%
+  filter(medal!= "Not win") %>% 
+  group_by(sex) %>% 
+  summarize(Count= length(medal), .groups='drop')
+
+olympic_df%>%
+  group_by(sex, medal)%>%
+  count(medal)
+
+medal_counts <- olympic_game %>% 
+  filter(medal!= "Not win") %>%
+  group_by(sex,medal) %>% 
+  summarize(Count = length(medal), .groups = 'drop') %>% 
+  ggplot(aes(x = sex, y = Count , fill = medal)) + 
+  scale_fill_manual(values = c("#8B3E2F",'#CD9B1D','#8B8386')) +
+  ggtitle("Number of males and females who won medals")+
+  geom_col(position="dodge") 
+
+medal_counts
+```
+
+### Q9: What is the most productive age for both male and female athletes in all sorts of sports?
+
+```{r}
+olympic_game %>%
+  filter(age >= 10 , age <= 75) %>% 
+  group_by(age, sex) %>% 
+  summarise(contestants = length(unique(id))) -> fvsminage
+
+
+ggplot(fvsminage ,aes(x =age ,y = contestants))+
+  geom_point()+
+  #stat_summary( fun  = "mean")+
+  geom_vline(aes(xintercept =23))+
+  ggtitle("The most productive age for both male and female athletes") +
+  theme(plot.title = element_text(hjust = 0.5))+
+  facet_wrap(fvsminage$sex)
+```
+
+
+### Q10: Is there a relation between athletes' gender and their winning to their olympic game?
+```{r}
+olympic_game %>% 
+  filter(medal != "Not win") %>%
+  group_by(sex , age) %>%
+  summarise(contestants = length(unique(id))) -> fvsminevent
+
+
+fvsminevent %>% 
+  arrange(-contestants , n =15) %>% 
+  head(15L) -> topevents
+
+
+olympic_game %>% 
+  filter(medal != "Not win", sex == 'F') %>%
+  group_by(sex , event , medal) %>%
+  summarise(contestants = length(unique(id))) -> Finevent
+
+Finevent %>% 
+  arrange(-contestants , n =10) %>% 
+  head(30L) -> topFinevent
+
+olympic_game %>% 
+  filter(medal != "Not win", sex == 'M') %>%
+  group_by(sex , event , medal) %>%
+  summarise(contestants = length(unique(id))) -> Minevent
+
+Minevent %>% 
+  arrange(-contestants , n =10) %>% 
+  head(30L) -> topMinevent
+
+
+topFinevent %>% 
+  ggplot(aes(x =contestants,y=fct_reorder(event,contestants) , fill = medal))+
+  geom_col()+
+  ggtitle("The most winning events for womens") +
+  ylab('Event name')+
+  theme(plot.title = element_text(hjust = 0.5))+
+  scale_fill_manual(values = c("#8B3E2F",'#CD9B1D','#C1CDC1'))
+
+
+topMinevent %>% 
+  ggplot(aes(x =contestants,y=fct_reorder(event,contestants) , fill = medal))+
+  geom_col()+
+  ggtitle("The most winning events for men") +
+  ylab('Event name')+
+  theme(plot.title = element_text(hjust = 0.5))+
+  scale_fill_manual(values = c("#8B3E2F",'#CD9B1D','#C1CDC1'))
+```
+
+
+# Step 4 (Hypothesis testing questions):
+### Women growth since they joined the olympics
+```{r}
+#women growth
+olympic_game %>% 
+  filter(sex =='F') %>% 
+  group_by(year , sex ,season) %>%
+  summarise(contestants = length(unique(id))) -> Fgrouth
+
+
+ggplot(Fgrouth ,aes(x = year, y = contestants))+
+  geom_point()+
+  geom_line()+
+  ggtitle("Womens contestants through years") +
+  theme(plot.title = element_text(hjust = 0.5))+
+  facet_grid(Fgrouth$season)
+```
+
+### Men growth vs. women growth
+```{r}
+#MEN GROUTH VS WOMENS
+olympic_game %>%
+ # filter(season == 'Summer') %>% 
+  group_by(year , sex, season ) %>%
+  summarise(contestants = length(unique(id))) -> FVSMinyears
+
+
+ggplot(FVSMinyears ,aes(x = year, y = contestants ,color = sex ))+
+  geom_point()+
+  geom_line()+
+  ggtitle("Mens and Womens contestants through years in both seasons") +
+  theme(plot.title = element_text(hjust = 0.5))+
+  facet_grid(FVSMinyears$season)
+```
+
+
+# Step 5 (Summary):
+
