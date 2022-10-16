@@ -1,7 +1,7 @@
 ##Feedback
-1. hypothesis is not clear. 
-2. focused on comparison between female and male.
+1. hypothesis is not clear. (the hypothesis and summary are described in the report & Notion) 
+2. focused on comparison between female and male. (we can't change it)
 3. In the "Number of males and females who won the medals" and other figure,
     the number of the medals will be proportional to the participent, 
-    so a better graph might involve the proportions of each medal. 
-4.some of the axes have overlapping text, specially for categorical variables.
+    so a better graph might involve the proportions of each medal. (we fixed the graph to show all the medals)
+4.some of the axes have overlapping text, specially for categorical variables. (we addressed this issue. Thank you)

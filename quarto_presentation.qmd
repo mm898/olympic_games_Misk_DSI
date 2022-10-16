@@ -216,10 +216,10 @@ by_country <- olympic_df %>%filter(medal !='Not win')%>% group_by(team) %>% summ
 head(sort(table(olympic_df$noc), TRUE),5)
 ```
 
-## Top 3 countries performance:
+## Top 3 countries performance (USA)
 
 ::: panel-tabset
-### United States in Summer
+### USA - Summer
 
 ```{r}
 # USA has 18853 participants
@@ -240,7 +240,7 @@ ggplot(data = USA_won_medals,
   geom_line() + facet_grid(rows = vars(medal))
 ```
 
-### United States in Winter
+### USA - Winter
 
 ```{r}
 # USA has 18853 participants
@@ -260,8 +260,11 @@ ggplot(data = USA_won_medals,
   ggtitle("Winter Medals won over the years for USA") +
   geom_line() + facet_grid(rows = vars(medal))
 ```
+:::
 
-### France in Summer
+## Top 3 countries performance (France)
+::: panel-tabset
+### France - Summer
 
 ```{r}
 # France has 12758 participants
@@ -282,7 +285,7 @@ ggplot(data = FRA_won_medals,
   geom_line() + facet_grid(rows = vars(medal)) 
 ```
 
-### France in Winter
+### France - Winter
 
 ```{r}
 # France has 12758 participants
@@ -302,8 +305,12 @@ ggplot(data = FRA_won_medals,
   ggtitle("Winter Medals won over the years for France") +
   geom_line() + facet_grid(rows = vars(medal)) 
 ```
+:::
 
-### United Kingdom in Summer
+
+## Top 3 countries performance (UK)
+::: panel-tabset
+### UK - Summer
 
 ```{r}
 # Great Brittin has 12256 participants
@@ -324,7 +331,7 @@ ggplot(data = GBR_won_medals,
   geom_line() + facet_grid(rows = vars(medal)) 
 ```
 
-### United Kingdom in Winter
+### UK - Winter
 
 ```{r}
 # Great Brittin has 12256 participants
