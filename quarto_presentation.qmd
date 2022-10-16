@@ -195,7 +195,8 @@ top_medal %>%
   xlab("Country") +
   scale_fill_manual(values =c("#8B3E2F",'#CD9B1D','#8B8386'))+
   geom_col() +
-  ggtitle("Top countries won medals") 
+  ggtitle("Top countries won medals")+
+  theme(axis.text.x = element_text(angle = 45)) 
 
 #country_medal_count %>%
 #  ggplot(country_medal_count,mapping = aes(x=noc, y=Total, fill=medal)) +
@@ -218,12 +219,12 @@ head(sort(table(olympic_df$noc), TRUE),5)
 ## Top 3 countries performance:
 
 ::: panel-tabset
-### United States
+### United States in Summer
 
 ```{r}
 # USA has 18853 participants
 # USA won 1358 bronze; 2638 gold; 1641 silver = 5637
-USA_won_medals <- data.frame(olympic_df[olympic_df$noc == 'USA' & olympic_df$medal != 'Not win',])
+USA_won_medals <- data.frame(olympic_df[olympic_df$noc == 'USA' & olympic_df$medal != 'Not win'  & olympic_df$season == 'Summer',])
 
 USA_won_medals %>%
   select(medal, year) %>%
@@ -235,16 +236,37 @@ USA_won_medals %>%
 ggplot(data = USA_won_medals,
        mapping = aes(x=year, y=n, color=medal)) + 
   scale_color_manual(values = c("#8B3E2F",'#CD9B1D','#8B8386')) +
-  ggtitle("Medals won over the years for USA") +
+  ggtitle("Summer Medals won over the years for USA") +
   geom_line() + facet_grid(rows = vars(medal))
 ```
 
-### France
+### United States in Winter
+
+```{r}
+# USA has 18853 participants
+# USA won 1358 bronze; 2638 gold; 1641 silver = 5637
+USA_won_medals <- data.frame(olympic_df[olympic_df$noc == 'USA' & olympic_df$medal != 'Not win'  & olympic_df$season == 'Winter',])
+
+USA_won_medals %>%
+  select(medal, year) %>%
+  group_by(medal) %>%
+  count(year) -> USA_won_medals
+
+#table(USA_won_medals$year)
+
+ggplot(data = USA_won_medals,
+       mapping = aes(x=year, y=n, color=medal)) + 
+  scale_color_manual(values = c("#8B3E2F",'#CD9B1D','#8B8386')) +
+  ggtitle("Winter Medals won over the years for USA") +
+  geom_line() + facet_grid(rows = vars(medal))
+```
+
+### France in Summer
 
 ```{r}
 # France has 12758 participants
 # France won 666 bronze; 501 gold; 610 silver = 1777
-FRA_won_medals <- data.frame(olympic_df[olympic_df$noc == 'FRA' & olympic_df$medal != 'Not win',])
+FRA_won_medals <- data.frame(olympic_df[olympic_df$noc == 'FRA' & olympic_df$medal != 'Not win' & olympic_df$season == 'Summer',])
 
 #table(FRA_won_medals$year)
 
@@ -256,16 +278,37 @@ FRA_won_medals %>%
 ggplot(data = FRA_won_medals,
        mapping = aes(x=year, y=n, color=medal)) + 
   scale_color_manual(values = c("#8B3E2F",'#CD9B1D','#8B8386')) + 
-  ggtitle("Medals won over the years for France") +
+  ggtitle("Summer Medals won over the years for France") +
   geom_line() + facet_grid(rows = vars(medal)) 
 ```
 
-### United Kingdom
+### France in Winter
+
+```{r}
+# France has 12758 participants
+# France won 666 bronze; 501 gold; 610 silver = 1777
+FRA_won_medals <- data.frame(olympic_df[olympic_df$noc == 'FRA' & olympic_df$medal != 'Not win' & olympic_df$season == 'Winter',])
+
+#table(FRA_won_medals$year)
+
+FRA_won_medals %>%
+  select(medal, year) %>%
+  group_by(medal) %>%
+  count(year) -> FRA_won_medals
+
+ggplot(data = FRA_won_medals,
+       mapping = aes(x=year, y=n, color=medal)) + 
+  scale_color_manual(values = c("#8B3E2F",'#CD9B1D','#8B8386')) + 
+  ggtitle("Winter Medals won over the years for France") +
+  geom_line() + facet_grid(rows = vars(medal)) 
+```
+
+### United Kingdom in Summer
 
 ```{r}
 # Great Brittin has 12256 participants
 # Great Brittin won 651 bronze; 678 gold; 739 silver = 2068
-GBR_won_medals <- data.frame(olympic_df[olympic_df$noc == 'GBR' & olympic_df$medal != 'Not win',])
+GBR_won_medals <- data.frame(olympic_df[olympic_df$noc == 'GBR' & olympic_df$medal != 'Not win' & olympic_df$season == 'Summer',])
 
 #table(GBR_won_medals$year)
 
@@ -277,7 +320,28 @@ GBR_won_medals %>%
 ggplot(data = GBR_won_medals,
        mapping = aes(x=year, y=n, color=medal)) + 
   scale_color_manual(values = c("#8B3E2F",'#CD9B1D','#8B8386')) + 
-  ggtitle("Medals won over the years for Great Brittin") +
+  ggtitle("Summer Medals won over the years for Great Brittin") +
+  geom_line() + facet_grid(rows = vars(medal)) 
+```
+
+### United Kingdom in Winter
+
+```{r}
+# Great Brittin has 12256 participants
+# Great Brittin won 651 bronze; 678 gold; 739 silver = 2068
+GBR_won_medals <- data.frame(olympic_df[olympic_df$noc == 'GBR' & olympic_df$medal != 'Not win' & olympic_df$season == 'Winter',])
+
+#table(GBR_won_medals$year)
+
+GBR_won_medals %>%
+  select(medal, year) %>%
+  group_by(medal) %>%
+  count(year) -> GBR_won_medals
+
+ggplot(data = GBR_won_medals,
+       mapping = aes(x=year, y=n, color=medal)) + 
+  scale_color_manual(values = c("#8B3E2F",'#CD9B1D','#8B8386')) + 
+  ggtitle("Winter Medals won over the years for Great Brittin") +
   geom_line() + facet_grid(rows = vars(medal)) 
 ```
 :::
@@ -399,31 +463,31 @@ ggplot(fvsminage ,aes(x =age ,y = contestants))+
 olympic_df %>% 
   filter(medal != "Not win") %>%
   group_by(sex , age) %>%
-  summarise(contestants = length(unique(id))) -> fvsminevent
+  summarise(total = n() ) -> fvsminevent
 
 
 fvsminevent %>% 
-  arrange(-contestants , n =15) %>% 
+  arrange(-total , n =15) %>% 
   head(15L) -> topevents
 
 
 olympic_df %>% 
   filter(medal != "Not win", sex == 'F') %>%
   group_by(sex , sport , medal) %>%
-  summarise(contestants = length(unique(id))) -> Finevent
+  summarise(total = n() ) -> Finevent
 
 Finevent %>% 
-  arrange(-contestants , n =10) %>% 
+  arrange(-total , n =10) %>% 
   head(30L) -> topFinevent
 
 olympic_df %>% 
   filter(medal != "Not win", sex == 'M') %>%
   group_by(sex , sport , medal) %>%
-  summarise(contestants = length(unique(id))) -> Minevent
+  summarise(total = n() ) -> Minevent
 
 Minevent %>% 
-  arrange(-contestants , n =10) %>% 
-  head(30L) -> topMinevent
+  arrange(-total , n =10) %>% 
+  head(48L) -> topMinevent
 
 
 ```
@@ -435,7 +499,7 @@ Minevent %>%
 
 ```{r}
 topFinevent %>% 
-  ggplot(aes(x =contestants,y=fct_reorder(sport,contestants) , fill = medal))+
+  ggplot(aes(x =total,y=fct_reorder(sport,total) , fill = medal))+
   geom_col()+
   ggtitle("The most winning events for womens") +
   ylab('Event name')+
@@ -448,7 +512,7 @@ topFinevent %>%
 
 ```{r}
 topMinevent %>% 
-  ggplot(aes(x =contestants,y=fct_reorder(sport,contestants) , fill = medal))+
+  ggplot(aes(x =total,y=fct_reorder(sport,total) , fill = medal))+
   geom_col()+
   ggtitle("The most winning events for men") +
   ylab('Event name')+
@@ -477,7 +541,7 @@ ggplot(Fgrouth ,aes(x = year, y = contestants))+
   facet_grid(Fgrouth$season)
 ```
 
-## Men growth vs. women growth
+## Men and women constantly growth
 
 ```{r}
 #MEN GROUTH VS WOMENS
