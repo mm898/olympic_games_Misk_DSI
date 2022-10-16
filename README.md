@@ -1,1 +1,1 @@
-[Olympic Presentation](quarto_presentation.html)
+[Olympic Presentation](./quarto_presentation.html)
